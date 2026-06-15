@@ -1,0 +1,35 @@
+name: Daily News Scraper
+
+on:
+  schedule:
+    # Runs at 00:00 UTC every day
+    - cron: '0 0 * * *'
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
+
+jobs:
+  scrape-news:
+    runs-on: ubuntu-latest
+    
+    # Requires repository write permissions to commit changes back
+    permissions:
+      contents: write
+      
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
+
+      - name: Run Scraper Script
+        run: python scrape_news.py
+
+      - name: Commit and Push Changes
+        run: |
+          git config --local user.email "github-actions[bot]@users.noreply.github.com"
+          git config --local user.name "github-actions[bot]"
+          git add output/
+          git diff --quiet && git diff --staged --quiet || (git commit -m "Add daily news count for West Kalimantan districts" && git push)
